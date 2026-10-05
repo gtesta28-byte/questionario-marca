@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Questionario – ricerca universitaria</title>
+<style>
+  body { margin: 0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; background: #f5f6f8; color: #1a2e4a; }
+  main { max-width: 480px; margin: 12vh auto 0; padding: 32px 24px; text-align: center; }
+  h1 { font-size: 1.3rem; margin: 0 0 12px; }
+  p { line-height: 1.5; margin: 0 0 20px; }
+  a.btn { display: inline-block; padding: 14px 28px; background: #1a2e4a; color: #fff; border-radius: 8px;
+          text-decoration: none; font-size: 1.05rem; }
+  .hidden { display: none; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Ricerca universitaria sulla comunicazione di marca</h1>
+  <p id="msg">Apertura del questionario in corso…</p>
+  <a id="btn" class="btn hidden" href="#">Inizia il questionario</a>
+  <noscript><p>Per partecipare è necessario attivare JavaScript nel browser.</p></noscript>
+</main>
+<script>
+  // 1) URL dell'applicazione web di Apps Script (termina con /exec)
+  const SERVIZIO = "https://script.google.com/macros/s/AKfycbzzkmw3G9td6Jkx7lju2WS474s0h2f95NQ7nOvXvsblWqRdJjZUc49UrKtdd-aWAFRN/exec";
+  // 2) I quattro link pubblici dei moduli (usati solo se il servizio non risponde)
+  const MODULI = [
+    "https://forms.gle/juctTb4tTKmB3cn96",
+    "https://forms.gle/MksutqioEUTUdGfU7",
+    "https://forms.gle/sAwueQX3HFh7BBu36",
+    "https://forms.gle/niypPSN61MgGVNHk7"
+  ];
+
+  const btn = document.getElementById("btn");
+  let aperto = false;
+  function apri(url) {
+    if (aperto) return;
+    aperto = true;
+    btn.href = url;
+    window.location.replace(url);
+    // se il browser non segue il reindirizzamento, resta il pulsante
+    setTimeout(() => { document.getElementById("msg").textContent = "Tocca il pulsante per iniziare.";
+                       btn.classList.remove("hidden"); }, 2500);
+  }
+  function riserva() { apri(MODULI[Math.floor(Math.random() * MODULI.length)]); }
+
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), 6000);
+  fetch(SERVIZIO + "?format=json", { credentials: "omit", cache: "no-store", signal: ctrl.signal })
+    .then(r => r.json())
+    .then(d => { clearTimeout(timer); (d && d.url) ? apri(d.url) : riserva(); })
+    .catch(() => riserva());
+</script>
+</body>
+</html>
